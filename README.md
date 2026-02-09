@@ -1,4 +1,4 @@
-# amplitudes — Spinor-helicity amplitudes and cross sections in Python
+# amplitudes - spinor-helicity amplitudes and cross sections in Python
 
 ![python](https://img.shields.io/badge/python-3.10%2B-blue)
 ![license](https://img.shields.io/badge/License-MIT-gold)
