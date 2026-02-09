@@ -1,0 +1,63 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "amplitudes"
+version = "0.5.0"
+description = "Modern on-shell scattering amplitudes + exact tree-level color sums in Python"
+readme = "README.md"
+license = {file = "LICENSE"}
+authors = [{name = "Amplitudes Contributors"}]
+keywords = ["scattering-amplitudes", "helicity", "spinor-helicity", "BCFW", "HEP", "Monte-Carlo", "cross-sections"]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Science/Research",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Scientific/Engineering :: Physics",
+]
+urls = { "Repository" = "https://github.com/REPLACE_ME/amplitudes", "Issues" = "https://github.com/REPLACE_ME/amplitudes/issues" }
+requires-python = ">=3.10"
+dependencies = [
+  "numpy>=1.23",
+  "sympy>=1.11",
+  "typer>=0.9",
+  "rich>=13.0",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=7.0"]
+
+[project.scripts]
+amplitudes = "amplitudes.cli:app"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = ["slow: long-running tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+select = ["E","F","I","B","UP","SIM"]
+ignore = []
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+
+[tool.coverage.run]
+source = ["amplitudes"]
+branch = true
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true

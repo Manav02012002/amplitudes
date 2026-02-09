@@ -1,0 +1,13 @@
+site_name: amplitudes
+theme:
+  name: material
+nav:
+  - Home: index.md
+  - Usage: usage.md
+  - API: api.md
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: ["src"]
