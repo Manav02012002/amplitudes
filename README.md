@@ -2,7 +2,6 @@
 
 ![python](https://img.shields.io/badge/python-3.10%2B-blue)
 ![license](https://img.shields.io/badge/License-MIT-gold)
-![tests](https://img.shields.io/github/actions/workflow/status/<ORG>/<REPO>/ci.yml?label=tests)
 ![code-style](https://img.shields.io/badge/code%20style-ruff-black)
 ![typecheck](https://img.shields.io/badge/typecheck-pyright-6b5cff)
 
