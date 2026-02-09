@@ -1,11 +1,14 @@
-# amplitudes
+# amplitudes — Spinor-helicity amplitudes and cross sections in Python
 
-Standalone Python library for modern on-shell scattering amplitudes:
-- spinor-helicity numerics
-- BCFW recursion for tree-level color-ordered gluon amplitudes
-- Parke–Taylor MHV
-- exact tree-level SU(N) color sums using Fierz identity (no adjoint brute force)
-- RAMBO + VEGAS integration and a cross section pipeline
+![python](https://img.shields.io/badge/python-3.10%2B-blue)
+![license](https://img.shields.io/badge/License-MIT-gold)
+![tests](https://img.shields.io/github/actions/workflow/status/<ORG>/<REPO>/ci.yml?label=tests)
+![code-style](https://img.shields.io/badge/code%20style-ruff-black)
+![typecheck](https://img.shields.io/badge/typecheck-pyright-6b5cff)
+
+`amplitudes` is a lightweight, production-ready toolkit for **tree-level scattering amplitudes** using
+**spinor-helicity**, **Parke–Taylor** and **BCFW recursion**, with **color handling** and **Monte Carlo**
+(phase space + VEGAS) integration for **cross sections**. It includes a CLI, a test suite, and a clean Python API.
 
 ## Install
 pip install -e ".[dev]"
