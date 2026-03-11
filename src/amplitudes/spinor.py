@@ -107,10 +107,15 @@ class SpinorPoint:
         sp = SpinorPoint(lam=lam, lamt=lamt)
         logger = logging.getLogger("amplitudes")
         if _logger_can_emit_warning(logger):
-            from .validate.diagnostics import momentum_conservation_residual, spinor_consistency_residuals
+            from .validate.diagnostics import (
+                DEFAULT_MOMENTUM_WARN_THRESHOLD,
+                DEFAULT_SPINOR_WARN_THRESHOLD,
+                momentum_conservation_residual,
+                spinor_consistency_residuals,
+            )
 
-            momentum_conservation_residual(p, warn_threshold=1e-10, logger=logger)
-            spinor_consistency_residuals(sp, p, warn_threshold=1e-10, logger=logger)
+            momentum_conservation_residual(p, warn_threshold=DEFAULT_MOMENTUM_WARN_THRESHOLD, logger=logger)
+            spinor_consistency_residuals(sp, p, warn_threshold=DEFAULT_SPINOR_WARN_THRESHOLD, logger=logger)
         return sp
 
     def momenta(self) -> np.ndarray:

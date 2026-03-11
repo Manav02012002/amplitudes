@@ -10,6 +10,9 @@ from ..lorentz import minkowski_dot
 if TYPE_CHECKING:
     from ..spinor import SpinorPoint
 
+DEFAULT_MOMENTUM_WARN_THRESHOLD = 1e-10
+DEFAULT_SPINOR_WARN_THRESHOLD = 1e-10
+
 
 def _energy_scale(momenta: np.ndarray) -> float:
     momenta = np.asarray(momenta, dtype=np.complex128)
