@@ -12,5 +12,5 @@ amplitudes validate <input>
 ## Python API
 
 ```python
-from amplitudes import spinor
+from amplitudes import BCFW, Particle, SpinorHelicity, gluon
 ```
