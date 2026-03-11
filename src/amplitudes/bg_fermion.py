@@ -7,7 +7,7 @@ from .particles import Particle
 from .spinor import SpinorPoint
 from .bg_currents import gluon_current_color_ordered
 from .polarization import massless_vector_polarizations, massive_vector_polarizations
-from .helas import slash, proj_L, proj_R, _GAMMA
+from .helas import slash, proj_L, proj_R, _GAMMA, build_massless_dirac_spinor
 from .sm import SMParams, gamma_coupling, z_couplings, w_coupling_L
 from .lorentz import mass2
 
@@ -68,40 +68,8 @@ class FermionLineBG:
         mid = list(legs[1:-1])
         n = len(mid)
 
-# External spinors from spinor-helicity (Dirac spinor embedding, helicity-aware)
-        def build_dirac_spinor(kind: str, p: np.ndarray, hel: int) -> np.ndarray:
-            """Massless Dirac spinors in Weyl basis.
-
-            Conventions (standard in spinor-helicity):
-              u_-(p) = (|p>, 0),  u_+(p) = (0, |p])
-              v_-(p) = (0, |p]),  v_+(p) = (|p>, 0)
-            where the 2-component objects are (lam, lamt).
-
-            This choice ensures physically consistent scaling under helicity sums.
-            """
-            spx = SpinorPoint.from_momenta(np.asarray([p], dtype=np.complex128))
-            lam = spx.lam[0]; lamt = spx.lamt[0]
-            s = np.zeros(4, dtype=np.complex128)
-            if kind == "q":
-                if hel == -1:
-                    s[0:2] = lam
-                elif hel == +1:
-                    s[2:4] = lamt
-                else:
-                    raise ValueError("helicity must be ±1")
-                return s
-            if kind == "qb":
-                if hel == -1:
-                    s[2:4] = lamt
-                elif hel == +1:
-                    s[0:2] = lam
-                else:
-                    raise ValueError("helicity must be ±1")
-                return s
-            raise ValueError("kind must be 'q' or 'qb'")
-
-        u_q = build_dirac_spinor('q', mom[0], q.hel)
-        v_qb = build_dirac_spinor('qb', mom[-1], qb.hel)  # outgoing anti-fermion; for massless we can use same helicity embedding
+        u_q = build_massless_dirac_spinor("q", mom[0], q.hel)
+        v_qb = build_massless_dirac_spinor("qb", mom[-1], qb.hel)
         # Precompute kinds/hels and momenta for mid legs
         kinds = [p.kind for p in mid]
         hels = [p.hel for p in mid]
@@ -230,76 +198,17 @@ class FermionLineBG:
         if legs[0].kind != "q" or legs[-1].kind != "qb":
             raise ValueError("Ordering must be [q, ..., qb].")
 
-        def build_dirac_spinor(kind: str, p: np.ndarray, hel: int) -> np.ndarray:
-            """Massless Dirac spinors in Weyl basis.
-
-            Conventions:
-              u_-(p) = (|p>, 0),  u_+(p) = (0, |p])
-              v_-(p) = (0, |p]),  v_+(p) = (|p>, 0)
-            """
-            spx = SpinorPoint.from_momenta(np.asarray([p], dtype=np.complex128))
-            lam = spx.lam[0]; lamt = spx.lamt[0]
-            out = np.zeros(4, dtype=np.complex128)
-            if kind == "q":
-                if hel == -1:
-                    out[0:2] = lam
-                elif hel == +1:
-                    out[2:4] = lamt
-                else:
-                    raise ValueError("helicity must be ±1")
-                return out
-            if kind == "qb":
-                if hel == -1:
-                    out[2:4] = lamt
-                elif hel == +1:
-                    out[0:2] = lam
-                else:
-                    raise ValueError("helicity must be ±1")
-                return out
-            raise ValueError("kind must be 'q' or 'qb'")
         q = legs[0]; qb = legs[-1]
         mid = list(legs[1:-1])
         n = len(mid)
 
-        from .spinor import SpinorPoint
         from .bg_currents import gluon_current_color_ordered
         from .helas import proj_L, proj_R, _GAMMA
         from .lorentz import mass2
         from .helas import slash
 
-        def build_dirac_spinor(kind: str, p: np.ndarray, hel: int) -> np.ndarray:
-            """Massless Dirac spinors in Weyl basis.
-
-            Conventions (standard in spinor-helicity):
-              u_-(p) = (|p>, 0),  u_+(p) = (0, |p])
-              v_-(p) = (0, |p]),  v_+(p) = (|p>, 0)
-            where the 2-component objects are (lam, lamt).
-
-            This choice ensures physically consistent scaling under helicity sums.
-            """
-            spx = SpinorPoint.from_momenta(np.asarray([p], dtype=np.complex128))
-            lam = spx.lam[0]; lamt = spx.lamt[0]
-            s = np.zeros(4, dtype=np.complex128)
-            if kind == "q":
-                if hel == -1:
-                    s[0:2] = lam
-                elif hel == +1:
-                    s[2:4] = lamt
-                else:
-                    raise ValueError("helicity must be ±1")
-                return s
-            if kind == "qb":
-                if hel == -1:
-                    s[2:4] = lamt
-                elif hel == +1:
-                    s[0:2] = lam
-                else:
-                    raise ValueError("helicity must be ±1")
-                return s
-            raise ValueError("kind must be 'q' or 'qb'")
-
-        u_q = build_dirac_spinor('q', mom[0], q.hel)
-        v_qb = build_dirac_spinor('qb', mom[-1], qb.hel)
+        u_q = build_massless_dirac_spinor("q", mom[0], q.hel)
+        v_qb = build_massless_dirac_spinor("qb", mom[-1], qb.hel)
         vbar = v_qb.conjugate().T @ _GAMMA[0]
 
         kinds = [p.kind for p in mid]
@@ -378,82 +287,12 @@ class FermionLineBG:
         if any(p.kind != "g" for p in mid):
             raise ValueError("current_to_offshell_gluon_split currently supports only gluon insertions.")
 
-        from .spinor import SpinorPoint
-
-        def build_dirac_spinor(kind: str, p: np.ndarray, hel: int) -> np.ndarray:
-            """Massless Dirac spinors in Weyl basis.
-
-            Conventions:
-              u_-(p) = (|p>, 0),  u_+(p) = (0, |p])
-              v_-(p) = (0, |p]),  v_+(p) = (|p>, 0)
-            """
-            spx = SpinorPoint.from_momenta(np.asarray([p], dtype=np.complex128))
-            lam = spx.lam[0]; lamt = spx.lamt[0]
-            out = np.zeros(4, dtype=np.complex128)
-            if kind == "q":
-                if hel == -1:
-                    out[0:2] = lam
-                elif hel == +1:
-                    out[2:4] = lamt
-                else:
-                    raise ValueError("helicity must be ±1")
-                return out
-            if kind == "qb":
-                if hel == -1:
-                    out[2:4] = lamt
-                elif hel == +1:
-                    out[0:2] = lam
-                else:
-                    raise ValueError("helicity must be ±1")
-                return out
-            raise ValueError("kind must be 'q' or 'qb'")
         from .bg_currents import gluon_current_color_ordered
         from .helas import proj_L, proj_R, _GAMMA, slash
         from .lorentz import mass2
-
-        def build_u(p: np.ndarray, hel: int) -> np.ndarray:
-            spx = SpinorPoint.from_momenta(np.asarray([p], dtype=np.complex128))
-            lam = spx.lam[0]; lamt = spx.lamt[0]
-            u = np.zeros(4, dtype=np.complex128)
-            if hel == -1:
-                u[0:2] = lam
-            elif hel == +1:
-                u[2:4] = lamt
-            else:
-                raise ValueError("helicity must be ±1")
-            return u
-
-
-        def build_dirac_spinor(kind: str, p: np.ndarray, hel: int) -> np.ndarray:
-            """Massless Dirac spinors in Weyl basis.
-
-            Conventions:
-              u_-(p) = (|p>, 0),  u_+(p) = (0, |p])
-              v_-(p) = (0, |p]),  v_+(p) = (|p>, 0)
-            """
-            spx = SpinorPoint.from_momenta(np.asarray([p], dtype=np.complex128))
-            lam = spx.lam[0]; lamt = spx.lamt[0]
-            out = np.zeros(4, dtype=np.complex128)
-            if kind == "q":
-                if hel == -1:
-                    out[0:2] = lam
-                elif hel == +1:
-                    out[2:4] = lamt
-                else:
-                    raise ValueError("helicity must be ±1")
-                return out
-            if kind == "qb":
-                if hel == -1:
-                    out[2:4] = lamt
-                elif hel == +1:
-                    out[0:2] = lam
-                else:
-                    raise ValueError("helicity must be ±1")
-                return out
-            raise ValueError("kind must be 'q' or 'qb'")
         q = legs[0]; qb = legs[-1]
-        u_q = build_dirac_spinor('q', mom[0], q.hel)
-        v_qb = build_dirac_spinor('qb', mom[-1], qb.hel)
+        u_q = build_massless_dirac_spinor("q", mom[0], q.hel)
+        v_qb = build_massless_dirac_spinor("qb", mom[-1], qb.hel)
         vbar = v_qb.conjugate().T @ _GAMMA[0]
 
         kinds = [p.kind for p in mid]
@@ -567,54 +406,13 @@ class FermionLineBG:
         if any(p.kind != "g" for p in mid):
             raise ValueError("current_to_two_offshell_gluons_split supports only gluon insertions in this step.")
 
-        from .spinor import SpinorPoint
-
-        def build_dirac_spinor(kind: str, p: np.ndarray, hel: int) -> np.ndarray:
-            """Massless Dirac spinors in Weyl basis.
-
-            Conventions:
-              u_-(p) = (|p>, 0),  u_+(p) = (0, |p])
-              v_-(p) = (0, |p]),  v_+(p) = (|p>, 0)
-            """
-            spx = SpinorPoint.from_momenta(np.asarray([p], dtype=np.complex128))
-            lam = spx.lam[0]; lamt = spx.lamt[0]
-            out = np.zeros(4, dtype=np.complex128)
-            if kind == "q":
-                if hel == -1:
-                    out[0:2] = lam
-                elif hel == +1:
-                    out[2:4] = lamt
-                else:
-                    raise ValueError("helicity must be ±1")
-                return out
-            if kind == "qb":
-                if hel == -1:
-                    out[2:4] = lamt
-                elif hel == +1:
-                    out[0:2] = lam
-                else:
-                    raise ValueError("helicity must be ±1")
-                return out
-            raise ValueError("kind must be 'q' or 'qb'")
         from .bg_currents import gluon_current_color_ordered
         from .helas import proj_L, proj_R, _GAMMA, slash
         from .lorentz import mass2
 
-        def build_u(p: np.ndarray, hel: int) -> np.ndarray:
-            spx = SpinorPoint.from_momenta(np.asarray([p], dtype=np.complex128))
-            lam = spx.lam[0]; lamt = spx.lamt[0]
-            u = np.zeros(4, dtype=np.complex128)
-            if hel == -1:
-                u[0:2] = lam
-            elif hel == +1:
-                u[2:4] = lamt
-            else:
-                raise ValueError("helicity must be ±1")
-            return u
-
         q = legs[0]; qb = legs[-1]
-        u_q = build_dirac_spinor('q', mom[0], q.hel)
-        v_qb = build_dirac_spinor('qb', mom[-1], qb.hel)
+        u_q = build_massless_dirac_spinor("q", mom[0], q.hel)
+        v_qb = build_massless_dirac_spinor("qb", mom[-1], qb.hel)
         vbar = v_qb.conjugate().T @ _GAMMA[0]
 
         hels = [p.hel for p in mid]

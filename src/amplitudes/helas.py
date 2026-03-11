@@ -52,6 +52,34 @@ class FermionWF:
     kind: str = "f" # f or fbar
     hel: int = +1
 
+
+def build_massless_dirac_spinor(kind: str, p: np.ndarray, hel: int) -> np.ndarray:
+    """
+    Build a helicity-eigenstate massless Dirac spinor in the Weyl basis.
+
+    In the package's all-outgoing convention, external fermions and antifermions
+    with the same helicity label occupy the same Weyl block. This keeps the BG
+    quark line aligned with the BCFW primitive under crossing.
+    """
+    from .spinor import SpinorPoint
+
+    if hel not in (-1, +1):
+        raise ValueError("helicity must be ±1")
+
+    sp = SpinorPoint.from_momenta(np.asarray([p], dtype=np.complex128))
+    lam = sp.lam[0]
+    lamt = sp.lamt[0]
+    u = np.zeros(4, dtype=np.complex128)
+
+    if kind not in {"q", "qb", "l", "lb"}:
+        raise ValueError("kind must be one of 'q', 'qb', 'l', 'lb'")
+
+    if hel == -1:
+        u[0:2] = lam
+    else:
+        u[2:4] = lamt
+    return u
+
 def massless_dirac_spinors_from_spinor_helicity(p: np.ndarray, hel: int) -> np.ndarray:
     """
     Build a Dirac spinor u(p,hel) for massless p using a numerically stable construction from 2-component spinors.
