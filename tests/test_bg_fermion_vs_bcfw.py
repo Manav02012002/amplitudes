@@ -1,5 +1,6 @@
 import numpy as np
 import math
+import pytest
 from amplitudes.bg_fermion import FermionLineBG
 from amplitudes.particles import Particle
 from amplitudes.bcfw_quark import primitive_q_qb_gluons
@@ -7,7 +8,15 @@ from amplitudes.spinor import SpinorPoint
 from amplitudes.phasespace import rambo_massless
 from amplitudes.sm import SMParams
 
-def test_bg_matches_bcfw_modsq_small_ng():
+
+@pytest.mark.parametrize(
+    ("quark_hel", "gluon_hel", "antiquark_hel"),
+    [
+        (-1, +1, +1),
+        (+1, -1, -1),
+    ],
+)
+def test_bg_matches_bcfw_modsq_small_ng(quark_hel: int, gluon_hel: int, antiquark_hel: int):
     rng = np.random.default_rng(2)
     Ecm = 1000.0
     # Choose alpha_s so that g_s = 1 (since bcfw_quark primitives are normalized with g_s=1)
@@ -15,10 +24,10 @@ def test_bg_matches_bcfw_modsq_small_ng():
     bg = FermionLineBG(params=SMParams(alpha_s=alpha_s))
     for ng in (1,2,3):
         mom, _ = rambo_massless(ng+2, Ecm, rng)
-        legs = [Particle("q", -1, flavor="u")]
+        legs = [Particle("q", quark_hel, flavor="u")]
         for _ in range(ng):
-            legs.append(Particle("g", +1))
-        legs.append(Particle("qb", +1, flavor="u"))
+            legs.append(Particle("g", gluon_hel))
+        legs.append(Particle("qb", antiquark_hel, flavor="u"))
         hels = tuple(p.hel for p in legs)
         sp = SpinorPoint.from_momenta(mom)
         A_bcfw = primitive_q_qb_gluons(sp, hels)
