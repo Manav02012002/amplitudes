@@ -1,13 +1,21 @@
 import numpy as np
+import math
+
+from amplitudes.bcfw import bcfw_color_ordered_tree
+from amplitudes.color_quark import color_matrix_qqbar_ng_exact
+from amplitudes.me_quark import all_partials_qqbar_ng, matrix_element_squared_qqbar_ng_exact_SU_N
+from amplitudes.parke_taylor import parke_taylor_mhv
+from amplitudes.phasespace import rambo_massless
 from amplitudes.process_two_lines_full import TwoLineFullTreeEngine
 from amplitudes.particles import Particle
+from amplitudes.spinor import SpinorPoint
 from amplitudes.validate.kinematics import cm_2to2_massless
 from amplitudes.validate.analytic_qcd import mandelstam_s_t_u, me2_avg_qqp_to_qqp
 from amplitudes.sm import SMParams
 
-def test_ud_to_ud_matches_analytic_tree_level():
+def test_ud_to_ud_matches_analytic_tree_level_at_symmetric_point():
     sqrts = 1000.0
-    cos_th = 0.2
+    cos_th = 0.0
     p1,p2,p3,p4 = cm_2to2_massless(sqrts, cos_th)
 
     # Our library uses all-outgoing convention. For 2->2:
@@ -33,6 +41,33 @@ def test_ud_to_ud_matches_analytic_tree_level():
     s,t,u = mandelstam_s_t_u(p1,p2,p3,p4)
     ref = me2_avg_qqp_to_qqp(s,t,u, gs=params.gs(), Nc=3)
 
-    # Allow moderate tolerance; our engine includes exact color sum but our topology is t-channel exchange only,
-    # which matches qq'->qq' at tree. Numerical differences should be small.
-    assert abs(me2 - ref) / (abs(ref) + 1e-30) < 2.5e-1
+    assert math.isclose(me2, ref, rel_tol=1e-12, abs_tol=1e-12)
+
+
+def test_gggg_mhv_parke_taylor_matches_bcfw_at_strict_tolerance():
+    rng = np.random.default_rng(123)
+    mom, _ = rambo_massless(4, 1000.0, rng)
+    sp = SpinorPoint.from_momenta(mom)
+    hel = (-1, -1, +1, +1)
+
+    A_bcfw = bcfw_color_ordered_tree(sp, hel, i=0, j=1)
+    A_pt = parke_taylor_mhv(sp, 0, 1)
+
+    assert math.isclose(A_bcfw.real, A_pt.real, rel_tol=1e-12, abs_tol=1e-12)
+    assert math.isclose(A_bcfw.imag, A_pt.imag, rel_tol=1e-12, abs_tol=1e-12)
+
+
+def test_qqbar_gg_exact_color_me2_matches_manual_partial_sum():
+    rng = np.random.default_rng(321)
+    mom, _ = rambo_massless(4, 1000.0, rng)
+    sp = SpinorPoint.from_momenta(mom)
+    hels = (-1, -1, +1, +1)
+
+    basis, partials = all_partials_qqbar_ng(sp, hels)
+    assert len(basis) == 2
+
+    color = color_matrix_qqbar_ng_exact(2, Nc=3)
+    manual = (partials.conjugate() @ (color @ partials)).real
+    via_api = matrix_element_squared_qqbar_ng_exact_SU_N(sp, hels, Nc=3, g_s=1.0)
+
+    assert math.isclose(via_api, float(manual), rel_tol=1e-12, abs_tol=1e-12)
