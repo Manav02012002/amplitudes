@@ -1,6 +1,10 @@
 from __future__ import annotations
 import numpy as np
-from dataclasses import dataclass
+
+from ..color_quark import color_matrix_qqbar_ng_exact
+from ..me_quark import all_partials_qqbar_ng
+from ..parke_taylor import parke_taylor_mhv
+from ..spinor import SpinorPoint
 
 def mandelstam_s_t_u(p1, p2, p3, p4):
     """Return (s,t,u) with all-incoming convention:
@@ -35,3 +39,17 @@ def me2_avg_qqp_to_qqp(s: float, t: float, u: float, gs: float, Nc: int = 3) -> 
         # averaged over colors: 1/Nc^2, summed: C_F^2*4? We keep Nc=3 as the tested case.
         raise NotImplementedError("Analytic general-Nc qq'->qq' reference implemented for Nc=3 only.")
     return (4.0/9.0) * (gs**4) * ((s*s + u*u) / (t*t))
+
+
+def mhv_gluon_reference(sp: SpinorPoint, negative_legs: tuple[int, int]) -> complex:
+    """Exact Parke-Taylor reference for an n-gluon MHV tree amplitude."""
+    return parke_taylor_mhv(sp, negative_legs[0], negative_legs[1])
+
+
+def me2_qqbar_gg_from_partials(sp: SpinorPoint, hels: tuple[int, int, int, int], Nc: int = 3) -> float:
+    """Exact q qbar + 2 gluons color-summed |M|^2 from partial amplitudes at g_s=1."""
+    basis, partials = all_partials_qqbar_ng(sp, hels)
+    if len(basis) != 2:
+        raise ValueError("Expected exactly two color orderings for q qbar + 2 gluons.")
+    color = color_matrix_qqbar_ng_exact(2, Nc)
+    return float((partials.conjugate() @ (color @ partials)).real)

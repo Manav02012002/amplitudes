@@ -2,15 +2,13 @@ import numpy as np
 import math
 
 from amplitudes.bcfw import bcfw_color_ordered_tree
-from amplitudes.color_quark import color_matrix_qqbar_ng_exact
-from amplitudes.me_quark import all_partials_qqbar_ng, matrix_element_squared_qqbar_ng_exact_SU_N
-from amplitudes.parke_taylor import parke_taylor_mhv
 from amplitudes.phasespace import rambo_massless
 from amplitudes.process_two_lines_full import TwoLineFullTreeEngine
 from amplitudes.particles import Particle
 from amplitudes.spinor import SpinorPoint
 from amplitudes.validate.kinematics import cm_2to2_massless
-from amplitudes.validate.analytic_qcd import mandelstam_s_t_u, me2_avg_qqp_to_qqp
+from amplitudes.validate.analytic_qcd import mandelstam_s_t_u, me2_avg_qqp_to_qqp, me2_qqbar_gg_from_partials, mhv_gluon_reference
+from amplitudes.me_quark import matrix_element_squared_qqbar_ng_exact_SU_N
 from amplitudes.sm import SMParams
 
 def test_ud_to_ud_matches_analytic_tree_level_at_symmetric_point():
@@ -51,7 +49,7 @@ def test_gggg_mhv_parke_taylor_matches_bcfw_at_strict_tolerance():
     hel = (-1, -1, +1, +1)
 
     A_bcfw = bcfw_color_ordered_tree(sp, hel, i=0, j=1)
-    A_pt = parke_taylor_mhv(sp, 0, 1)
+    A_pt = mhv_gluon_reference(sp, (0, 1))
 
     assert math.isclose(A_bcfw.real, A_pt.real, rel_tol=1e-12, abs_tol=1e-12)
     assert math.isclose(A_bcfw.imag, A_pt.imag, rel_tol=1e-12, abs_tol=1e-12)
@@ -63,11 +61,7 @@ def test_qqbar_gg_exact_color_me2_matches_manual_partial_sum():
     sp = SpinorPoint.from_momenta(mom)
     hels = (-1, -1, +1, +1)
 
-    basis, partials = all_partials_qqbar_ng(sp, hels)
-    assert len(basis) == 2
-
-    color = color_matrix_qqbar_ng_exact(2, Nc=3)
-    manual = (partials.conjugate() @ (color @ partials)).real
+    manual = me2_qqbar_gg_from_partials(sp, hels, Nc=3)
     via_api = matrix_element_squared_qqbar_ng_exact_SU_N(sp, hels, Nc=3, g_s=1.0)
 
-    assert math.isclose(via_api, float(manual), rel_tol=1e-12, abs_tol=1e-12)
+    assert math.isclose(via_api, manual, rel_tol=1e-12, abs_tol=1e-12)
