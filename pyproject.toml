@@ -40,6 +40,9 @@ amplitudes = "amplitudes.cli:app"
 [tool.setuptools]
 package-dir = {"" = "src"}
 
+[tool.setuptools.package-data]
+amplitudes = ["py.typed"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 markers = ["slow: long-running tests"]

@@ -1,6 +1,9 @@
 from __future__ import annotations
-import numpy as np
 from dataclasses import dataclass
+from typing import Sequence
+
+import numpy as np
+
 from .spinor import SpinorPoint
 from .bcfw import bcfw_color_ordered_tree
 from .me import matrix_element_squared_gluons_exact_SU_N
@@ -29,7 +32,11 @@ class SpinorHelicity:
 
 class BCFW:
     @staticmethod
-    def tree_amplitude(process: list[Particle], momenta: np.ndarray, order: tuple[int, ...] | None = None) -> complex:
+    def tree_amplitude(
+        process: Sequence[Particle],
+        momenta: np.ndarray,
+        order: tuple[int, ...] | None = None,
+    ) -> complex:
         """
         Unified entry point:
           - all gluons: returns color-ordered amplitude in the given cyclic order
@@ -60,7 +67,11 @@ class BCFW:
         raise ValueError("Unsupported process kinds for tree_amplitude")
 
     @staticmethod
-    def tree_amplitude_gluons_color_ordered(momenta: np.ndarray, helicities: tuple[int, ...], order: tuple[int, ...] | None = None) -> complex:
+    def tree_amplitude_gluons_color_ordered(
+        momenta: np.ndarray,
+        helicities: tuple[int, ...],
+        order: tuple[int, ...] | None = None,
+    ) -> complex:
         sh = SpinorHelicity.from_momenta(momenta)
         if order is not None:
             lam = sh.sp.lam[list(order)]
@@ -70,15 +81,25 @@ class BCFW:
             return bcfw_color_ordered_tree(sp, hel, i=0, j=1)
         return bcfw_color_ordered_tree(sh.sp, helicities, i=0, j=1)
 
+
 class ColorDecomposition:
     @staticmethod
-    def matrix_element_squared_qqbar_ng(momenta: np.ndarray, helicities: tuple[int, ...], Nc: int = 3, g_s: float = 1.0) -> float:
+    def matrix_element_squared_qqbar_ng(
+        momenta: np.ndarray,
+        helicities: tuple[int, ...],
+        Nc: int = 3,
+        g_s: float = 1.0,
+    ) -> float:
         """Exact color-summed |M|^2 for ordering [q, g..., qb]."""
         sh = SpinorHelicity.from_momenta(momenta)
         return matrix_element_squared_qqbar_ng_exact_SU_N(sh.sp, helicities, Nc=Nc, g_s=g_s)
 
-
     @staticmethod
-    def matrix_element_squared_gluons(momenta: np.ndarray, helicities: tuple[int, ...], Nc: int = 3, g_s: float = 1.0) -> float:
+    def matrix_element_squared_gluons(
+        momenta: np.ndarray,
+        helicities: tuple[int, ...],
+        Nc: int = 3,
+        g_s: float = 1.0,
+    ) -> float:
         sh = SpinorHelicity.from_momenta(momenta)
         return matrix_element_squared_gluons_exact_SU_N(sh.sp, helicities, Nc=Nc, g_s=g_s)
