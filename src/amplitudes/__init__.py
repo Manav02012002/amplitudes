@@ -1,4 +1,9 @@
 from __future__ import annotations
+import logging as _logging
+
+_package_logger = _logging.getLogger("amplitudes")
+if not any(isinstance(handler, _logging.NullHandler) for handler in _package_logger.handlers):
+    _package_logger.addHandler(_logging.NullHandler())
 
 from .api import SpinorHelicity, BCFW, ColorDecomposition
 from .bg_fermion import FermionLineBG

@@ -1,8 +1,22 @@
 from __future__ import annotations
 from dataclasses import dataclass
+import logging
 import numpy as np
 
 Complex = np.complex128
+
+
+def _logger_can_emit_warning(logger: logging.Logger) -> bool:
+    if not logger.isEnabledFor(logging.WARNING):
+        return False
+    cur: logging.Logger | None = logger
+    while cur is not None:
+        if any(not isinstance(handler, logging.NullHandler) for handler in cur.handlers):
+            return True
+        if not cur.propagate:
+            return False
+        cur = cur.parent
+    return False
 
 def _c(x) -> Complex:
     return np.asarray(x, dtype=np.complex128)
@@ -90,7 +104,14 @@ class SpinorPoint:
         lamt = np.zeros((n, 2), dtype=np.complex128)
         for i in range(n):
             lam[i], lamt[i] = _spinors_from_massless_momentum(p[i])
-        return SpinorPoint(lam=lam, lamt=lamt)
+        sp = SpinorPoint(lam=lam, lamt=lamt)
+        logger = logging.getLogger("amplitudes")
+        if _logger_can_emit_warning(logger):
+            from .validate.diagnostics import momentum_conservation_residual, spinor_consistency_residuals
+
+            momentum_conservation_residual(p, warn_threshold=1e-10, logger=logger)
+            spinor_consistency_residuals(sp, p, warn_threshold=1e-10, logger=logger)
+        return sp
 
     def momenta(self) -> np.ndarray:
         n = self.lam.shape[0]
