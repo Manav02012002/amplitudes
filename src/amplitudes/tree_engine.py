@@ -5,7 +5,7 @@ from .crossing import External, to_all_outgoing
 from .spinor import SpinorPoint
 from .me import matrix_element_squared_gluons_exact_SU_N
 from .me_quark import matrix_element_squared_qqbar_ng_exact_SU_N
-from .model import SMParams
+from .sm import SMParams
 
 @dataclass(frozen=True)
 class WidthScheme:

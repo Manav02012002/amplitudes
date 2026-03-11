@@ -11,7 +11,6 @@ src/amplitudes/crossing.py
 src/amplitudes/kinematics.py
 src/amplitudes/me.py
 src/amplitudes/me_quark.py
-src/amplitudes/model.py
 src/amplitudes/parke_taylor.py
 src/amplitudes/particles.py
 src/amplitudes/phasespace.py
