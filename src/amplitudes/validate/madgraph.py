@@ -45,7 +45,11 @@ def mg5_available() -> bool:
     return True
 
 
-def export_phase_space_point_lhe(momenta, pdg_ids: Sequence[int], out_path: str) -> None:
+def export_phase_space_point_lhe(
+    momenta: Sequence[Sequence[float]],
+    pdg_ids: Sequence[int],
+    out_path: str,
+) -> None:
     """Export a single phase-space point to an LHE-like event snippet.
 
     This is a utility for validation workflows where you compare against MG5/Sherpa/etc.
