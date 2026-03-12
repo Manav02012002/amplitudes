@@ -10,6 +10,7 @@ from .me import matrix_element_squared_gluons_exact_SU_N
 from .me_quark import matrix_element_squared_qqbar_ng_exact_SU_N
 from .bcfw_quark import primitive_q_qb_gluons
 from .particles import Particle, gluon, quark, antiquark, vector
+from .process import _canonical_tree_order, _tree_process_signature
 
 @dataclass(frozen=True)
 class SpinorHelicity:
@@ -57,12 +58,13 @@ class BCFW:
         else:
             sp = sh.sp
 
-        if kinds.count("q") == 1 and kinds.count("qb") == 1 and all(k in ("q","qb","g") for k in kinds):
+        signature = _tree_process_signature(kinds)
+        if signature == "qqbar_ng":
             # require q at start and qb at end for the primitive wrapper
-            if kinds[0] != "q" or kinds[-1] != "qb":
+            if _canonical_tree_order(kinds) != tuple(range(len(kinds))):
                 raise ValueError("For quark primitives, provide cyclic order with q first and qb last.")
             return primitive_q_qb_gluons(sp, helicities)
-        if all(k == "g" for k in kinds):
+        if signature == "gluons":
             return bcfw_color_ordered_tree(sp, helicities, i=0, j=1)
         raise ValueError("Unsupported process kinds for tree_amplitude")
 
