@@ -136,9 +136,9 @@ def vvv_amplitude(V1: VectorWF, V2: VectorWF, V3: VectorWF, g: complex) -> compl
     """Triple gauge vertex contraction (colorless version) with Feynman rule structure."""
     p1,p2,p3 = V1.p, V2.p, V3.p
     e1,e2,e3 = V1.eps, V2.eps, V3.eps
-    term23 = minkowski_dot(e2, e3) * minkowski_dot(p2 - p3, e1)
-    term31 = minkowski_dot(e3, e1) * minkowski_dot(p3 - p1, e2)
-    term12 = minkowski_dot(e1, e2) * minkowski_dot(p1 - p2, e3)
+    term23 = minkowski_dot(e2, e3) * np.dot(p2 - p3, e1)
+    term31 = minkowski_dot(e3, e1) * np.dot(p3 - p1, e2)
+    term12 = minkowski_dot(e1, e2) * np.dot(p1 - p2, e3)
     return g * (term23 + term31 + term12)
 
 def vector_propagator_factor(p: np.ndarray, m: float, width: float, scheme: str) -> complex:
