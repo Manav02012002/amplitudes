@@ -10,6 +10,7 @@ def test_public_api_all_matches_expected_export_set():
         "External",
         "FermionLineBG",
         "Particle",
+        "ProcessSpec",
         "SMParams",
         "SpinorHelicity",
         "TreeEngine",

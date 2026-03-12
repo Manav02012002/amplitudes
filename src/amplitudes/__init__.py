@@ -12,6 +12,7 @@ from .particles import Particle, gluon, quark, antiquark, vector
 from .phasespace import rambo_massless
 from . import symbolic
 from .tree_engine import TreeEngine
+from .process import ProcessSpec
 from .sm import SMParams
 from .vegas import vegas_integrate
 from .xsec2n import xsec_2_to_n
@@ -31,6 +32,7 @@ __all__: list[str] = [
     "TreeEngine",
     "FermionLineBG",
     "External",
+    "ProcessSpec",
     "SMParams",
     "xsec_2_to_n",
 ]
