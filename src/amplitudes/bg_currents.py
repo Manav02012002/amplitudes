@@ -26,17 +26,13 @@ def _contract_V3(Jq: np.ndarray, Jr: np.ndarray, p: np.ndarray, q: np.ndarray, r
 
 def _V4_contact(Ja: np.ndarray, Jb: np.ndarray, Jc: np.ndarray) -> np.ndarray:
     """Color-ordered 4-gluon contact term contribution."""
-    out = np.zeros(4, dtype=np.complex128)
-    # V^{μνρσ} = 2 η^{μρ}η^{νσ} - η^{μν}η^{ρσ} - η^{μσ}η^{νρ}
-    for mu in range(4):
-        s = 0.0 + 0j
-        for nu in range(4):
-            for rho in range(4):
-                for sig in range(4):
-                    V = 2*_eta[mu,rho]*_eta[nu,sig] - _eta[mu,nu]*_eta[rho,sig] - _eta[mu,sig]*_eta[nu,rho]
-                    s += V * Jb[nu]*Jc[rho]*Ja[sig]
-        out[mu] = s
-    return out
+    eta_Ja = _eta @ Ja
+    eta_Jb = _eta @ Jb
+    eta_Jc = _eta @ Jc
+    Jb_eta_Ja = np.dot(Jb, eta_Ja)
+    Jc_eta_Ja = np.dot(Jc, eta_Ja)
+    Jb_eta_Jc = np.dot(Jb, eta_Jc)
+    return 2.0 * eta_Jc * Jb_eta_Ja - eta_Jb * Jc_eta_Ja - eta_Ja * Jb_eta_Jc
 
 def gluon_current_color_ordered(mom: np.ndarray, hels: tuple[int, ...], g_s: float) -> np.ndarray:
     """

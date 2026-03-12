@@ -21,9 +21,18 @@ def _V3(p: np.ndarray, q: np.ndarray, r: np.ndarray) -> np.ndarray:
                 )
     return V
 
-def _V4(mu: int, nu: int, rho: int, sig: int) -> complex:
-    # color-ordered 4-gluon vertex tensor (kinematic part)
-    return 2*_eta[mu,rho]*_eta[nu,sig] - _eta[mu,nu]*_eta[rho,sig] - _eta[mu,sig]*_eta[nu,rho]
+def _contract_V4_with_remainder(J1: np.ndarray, J2: np.ndarray, rem: np.ndarray) -> np.ndarray:
+    eta_J1 = _eta @ J1
+    eta_J2 = _eta @ J2
+    eta_rem = _eta @ rem
+    J1_eta_rem = np.einsum("a,ab->b", J1, eta_rem)
+    J2_eta_rem = np.einsum("a,ab->b", J2, eta_rem)
+    J1_eta_J2 = np.dot(J1, eta_J2)
+    return (
+        2.0 * np.outer(eta_J2, J1_eta_rem)
+        - np.outer(eta_J1, J2_eta_rem)
+        - eta_rem * J1_eta_J2
+    )
 
 def gluon_bicurrent_color_ordered(
     mom: np.ndarray,
@@ -107,15 +116,7 @@ def gluon_bicurrent_color_ordered(
                 J2 = gluon_current_color_ordered(mom[k+1:l+1], tuple(hels[k+1:l+1]), g_s=g_s)
                 q_next = q_in + P1 + P2
                 rem = T(l+1, tuple(map(float, q_next.real.tolist())))
-                # contact: V4^{μ α β ρ} J1_α J2_β rem_{ρν}
-                for mu in range(4):
-                    for nu in range(4):
-                        s = 0.0 + 0j
-                        for a in range(4):
-                            for b in range(4):
-                                for rmu in range(4):
-                                    s += _V4(mu, a, b, rmu) * J1[a] * J2[b] * rem[rmu, nu]
-                        out[mu,nu] += s
+                out += _contract_V4_with_remainder(J1, J2, rem)
 
         # Propagator of the internal line after the first interaction is accounted for by recursion via q_next propagators:
         # We include it by multiplying by g_s (vertex) and by 1/(q_in+P)^2? Those denominators are already present in Jblock,
